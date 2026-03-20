@@ -171,9 +171,11 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .login-box .form-input{margin-bottom:12px}
 .login-error{font-size:12px;color:var(--danger);margin-bottom:12px;min-height:18px}
 /* V5: Mobile */
-.mobile-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;width:36px;height:36px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text-secondary)}
-.sidebar-close{display:none;position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;color:var(--text-muted);cursor:pointer}
-@media(max-width:768px){.mobile-toggle{display:flex}.sidebar{transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.sidebar-close{display:block}.main{margin-left:0;padding:16px 16px 16px 16px}.stats{grid-template-columns:repeat(2,1fr)}.model-status-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.type-info-grid{grid-template-columns:1fr 1fr}.page-header{flex-direction:column;gap:8px}}
+.mobile-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;width:44px;height:44px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--text-secondary);-webkit-tap-highlight-color:transparent}
+.sidebar-close{display:none;position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;color:var(--text-muted);cursor:pointer;width:36px;height:36px;-webkit-tap-highlight-color:transparent}
+.sidebar-backdrop{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99;-webkit-tap-highlight-color:transparent}
+.sidebar-backdrop.open{display:block}
+@media(max-width:768px){.mobile-toggle{display:flex}.sidebar{transform:translateX(-100%);transition:transform .3s;z-index:200}.sidebar.open{transform:translateX(0)}.sidebar-close{display:block}.main{margin-left:0;padding:56px 14px 14px 14px}.stats{grid-template-columns:repeat(2,1fr)}.model-status-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.type-info-grid{grid-template-columns:1fr 1fr}.page-header{flex-direction:column;gap:8px}.action-group{flex-direction:column}.action-group .btn{width:100%;justify-content:center}.btn-sm{padding:8px 14px;font-size:13px}.output-actions{gap:4px}.output-actions .btn{padding:6px 10px;font-size:11px}.modal{max-width:95%;max-height:95vh}.form-textarea{min-height:120px}.type-info-grid{grid-template-columns:1fr}.health-grid{grid-template-columns:1fr}}
 /* V5: User badge */
 .user-badge{display:flex;align-items:center;gap:8px;padding:8px 16px;margin:0 8px 8px;background:var(--accent-dim);border-radius:8px;font-size:12px;color:var(--accent)}
 .user-badge-name{font-weight:500}
@@ -194,7 +196,7 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}.empty-state p{font-size:14px;margin-top:8px;font-weight:300}
 .config-banner{background:var(--warning-dim);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:14px 20px;margin-bottom:20px;font-size:13px;color:var(--warning);display:none}
 .action-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:16px}.stats{grid-template-columns:repeat(2,1fr)}.model-status-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.type-info-grid{grid-template-columns:1fr 1fr}}
+
 </style>
 <body>
 <div class="toast-container" id="toasts"></div>
@@ -210,7 +212,9 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 </div>
 </div>
 <!-- V5: Mobile toggle -->
-<div class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.add('open')">&#9776;</div>
+<!-- V5: Mobile toggle -->
+<div class="mobile-toggle" onclick="openSidebar()">&#9776;</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 <!-- V5: Reader modal -->
 <div class="modal-overlay" id="readerModal"><div class="modal">
 <div class="modal-header"><h2 id="modalTitle">Output</h2><button class="btn-ghost" onclick="closeModal()" style="font-size:20px">&times;</button></div>
@@ -225,7 +229,7 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 </div></div>
 <div class="app">
 <aside class="sidebar">
-<button class="sidebar-close" onclick="this.closest('.sidebar').classList.remove('open')">&times;</button>
+<button class="sidebar-close" onclick="closeSidebar()">&times;</button>
 <div class="sidebar-brand"><h1>AI Ops <span class="version-tag">v5</span></h1><p>command center</p></div>
 <div class="user-badge" id="userBadge" style="display:none"><div><div class="user-badge-name" id="userBadgeName">-</div><div class="user-badge-role" id="userBadgeRole">-</div></div><button class="btn-ghost" onclick="doLogout()" style="margin-left:auto;font-size:11px;color:var(--text-muted)">Logout</button></div>
 <div class="nav-section">
@@ -468,8 +472,10 @@ async function testTelegram(){
 }
 
 // ===== NAV =====
+function openSidebar(){document.querySelector('.sidebar').classList.add('open');document.getElementById('sidebarBackdrop').classList.add('open')}
+function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('sidebarBackdrop').classList.remove('open')}
 var currentTaskType='transcript',modalOutputId=null;
-function showPage(n){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});document.getElementById('page-'+n).classList.add('active');var m={dashboard:0,submit:1,outputs:2,models:3,projects:4,health:5,settings:6,users:7};var items=document.querySelectorAll('.nav-item');if(m[n]!==undefined&&items[m[n]])items[m[n]].classList.add('active');if(n==='outputs')loadOutputs();if(n==='projects')loadProjects();if(n==='dashboard')loadDashboard();if(n==='settings')loadSettings();if(n==='health')runHealthCheck();if(n==='models')checkModelStatus();if(n==='users')loadUsers();document.querySelector('.sidebar').classList.remove('open')}
+function showPage(n){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});document.getElementById('page-'+n).classList.add('active');var m={dashboard:0,submit:1,outputs:2,models:3,projects:4,health:5,settings:6,users:7};var items=document.querySelectorAll('.nav-item');if(m[n]!==undefined&&items[m[n]])items[m[n]].classList.add('active');if(n==='outputs')loadOutputs();if(n==='projects')loadProjects();if(n==='dashboard')loadDashboard();if(n==='settings')loadSettings();if(n==='health')runHealthCheck();if(n==='models')checkModelStatus();if(n==='users')loadUsers();closeSidebar()}
 function filterAndShow(s){showPage('outputs');setTimeout(function(){document.getElementById('outputFilter').value=s;filterOutputs(s)},100)}
 function selectTypeCard(el,t){document.querySelectorAll('.type-card').forEach(function(c){c.classList.remove('active')});el.classList.add('active');currentTaskType=t;var map={transcript:'anthropic/claude-sonnet-4',notes:'anthropic/claude-sonnet-4',summarize:'google/gemini-2.0-flash-exp:free',proposal:'openai/gpt-4o',custom:'openrouter/free'};var sel=document.getElementById('model-select');var target=map[t]||'openrouter/free';for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===target){sel.selectedIndex=i;break}}showExtraFields(t)}
 function showExtraFields(t){var ef=document.getElementById('extraFields');var fields={transcript:'<label class="form-label">Meeting details (optional)</label><div class="form-row"><div><label class="form-label">Date</label><input class="form-input" id="ef-date" type="date"></div><div><label class="form-label">Topic</label><input class="form-input" id="ef-topic" placeholder="e.g., Q1 review"></div></div><label class="form-label">Attendees</label><input class="form-input" id="ef-attendees" placeholder="e.g., Kito, Sarah">',notes:'<label class="form-label">Document options</label><div class="form-row"><div><label class="form-label">Format</label><select class="form-select" id="ef-doctype"><option>Business report</option><option>Memo</option><option>Brief</option><option>SOP</option><option>Email draft</option></select></div><div><label class="form-label">Tone</label><select class="form-select" id="ef-tone"><option>Professional</option><option>Formal</option><option>Casual</option><option>Technical</option></select></div></div>',summarize:'<label class="form-label">Summary options</label><div class="form-row"><div><label class="form-label">Length</label><select class="form-select" id="ef-length"><option>Short</option><option>Medium</option><option>Detailed</option></select></div><div><label class="form-label">Focus</label><select class="form-select" id="ef-focus"><option>Key points</option><option>Decisions</option><option>Numbers</option><option>Actions</option></select></div></div>',proposal:'<label class="form-label">Proposal details</label><div class="form-row"><div><label class="form-label">Audience</label><input class="form-input" id="ef-client" placeholder="e.g., Board"></div><div><label class="form-label">Budget</label><input class="form-input" id="ef-budget" placeholder="e.g., $10k-50k"></div></div><label class="form-label">Timeline</label><input class="form-input" id="ef-timeline" placeholder="e.g., 3 months">',custom:''};ef.innerHTML=fields[t]||'';ef.classList.toggle('show',!!fields[t])}
