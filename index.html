@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Ops — Command Center v2</title>
+<title>AI Ops — Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;transition:background .3s,color .3s}
 .app{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--bg-secondary);border-right:1px solid var(--border);padding:20px 0;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;transition:background .3s,border .3s}
+.sidebar{width:220px;background:var(--bg-secondary);border-right:1px solid var(--border);padding:20px 0;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;transition:background .3s}
 .sidebar-brand{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
 .sidebar-brand h1{font-size:17px;font-weight:700;color:var(--accent)}
 .sidebar-brand p{font-size:10px;color:var(--text-muted);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
@@ -48,7 +48,7 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .btn-debate{border-color:var(--accent);color:var(--accent)}.btn-debate:hover{background:var(--accent-dim)}
 .btn-ghost{border:none;background:transparent;color:var(--text-secondary);padding:4px 8px}.btn-ghost:hover{color:var(--text-primary);background:transparent}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
-.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:all .2s}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:all .2s;cursor:pointer}
 .stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
 .stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;font-weight:500}
 .stat-value{font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-1.5px}
@@ -61,12 +61,23 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .form-label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;letter-spacing:.3px}
 .form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-primary);font-family:inherit;font-size:13px;transition:all .2s;outline:none}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.form-textarea{min-height:160px;resize:vertical;line-height:1.7}
+.form-textarea{min-height:140px;resize:vertical;line-height:1.7}
 .form-select{cursor:pointer}
-.type-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.type-pill{padding:7px 16px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;transition:all .2s;font-family:inherit}
-.type-pill:hover{border-color:var(--accent);color:var(--accent)}
-.type-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* Task type cards */
+.type-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px}
+.type-card{border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s}
+.type-card:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.type-card.active{border-color:var(--accent);background:var(--accent-dim)}
+.type-card-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.type-card-desc{font-size:11px;color:var(--text-secondary);line-height:1.5}
+.type-card-model{font-size:10px;color:var(--accent);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.type-card-icon{font-size:16px}
+/* Extra fields per type */
+.extra-fields{display:none;margin-bottom:16px;padding:14px;background:var(--bg-input);border-radius:10px;border:1px solid var(--border)}
+.extra-fields.show{display:block;animation:fadeIn .2s}
+.extra-fields .form-label{margin-top:10px}.extra-fields .form-label:first-child{margin-top:0}
+/* Output */
 .output-item{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;transition:all .2s}
 .output-item:hover{border-color:var(--border-hover)}
 .output-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;flex-wrap:wrap}
@@ -76,18 +87,16 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .status-draft{background:var(--warning-dim);color:var(--warning)}
 .status-approved{background:var(--success-dim);color:var(--success)}
 .status-rejected{background:var(--danger-dim);color:var(--danger)}
-/* V2: Improved output content - collapsible */
-.output-content{font-size:13px;line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;padding:14px;background:var(--bg-primary);border-radius:8px;border:1px solid var(--border);max-height:120px;overflow:hidden;position:relative;transition:max-height .3s ease}
+.output-content{font-size:13px;line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;padding:14px;background:var(--bg-primary);border-radius:8px;border:1px solid var(--border);max-height:120px;overflow:hidden;position:relative;transition:max-height .3s}
 .output-content.expanded{max-height:none;overflow:visible}
 .output-content.collapsed::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--bg-primary));pointer-events:none}
 .output-content.expanded::after{display:none}
-/* V2: Markdown rendered content */
 .output-content.md-rendered{white-space:normal;font-family:'Outfit',sans-serif}
-.output-content.md-rendered h1,.output-content.md-rendered h2,.output-content.md-rendered h3{color:var(--text-primary);margin:16px 0 8px;font-weight:600}
+.output-content.md-rendered h1,.output-content.md-rendered h2,.output-content.md-rendered h3{color:var(--text-primary);margin:14px 0 6px;font-weight:600}
 .output-content.md-rendered h1{font-size:18px}.output-content.md-rendered h2{font-size:16px}.output-content.md-rendered h3{font-size:14px}
-.output-content.md-rendered ul,.output-content.md-rendered ol{padding-left:20px;margin:8px 0}
-.output-content.md-rendered li{margin:4px 0}
-.output-content.md-rendered p{margin:8px 0}
+.output-content.md-rendered ul,.output-content.md-rendered ol{padding-left:20px;margin:6px 0}
+.output-content.md-rendered li{margin:3px 0}
+.output-content.md-rendered p{margin:6px 0}
 .output-content.md-rendered code{background:var(--bg-card);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px}
 .output-content.md-rendered pre{background:var(--bg-card);padding:12px;border-radius:8px;overflow-x:auto;margin:8px 0}
 .output-content.md-rendered pre code{background:none;padding:0}
@@ -102,8 +111,8 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .model-claude{border-left:3px solid #f59e0b;border-radius:0 10px 10px 0}
 .model-gemini{border-left:3px solid #10b981;border-radius:0 10px 10px 0}
 .model-synthesis{border:2px solid var(--accent);background:var(--accent-dim)}
-/* V2: Fullscreen modal */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--modal-bg);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;animation:fadeIn .2s ease}
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--modal-bg);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;animation:fadeIn .2s}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:800px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -111,13 +120,49 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .modal-body{padding:24px;overflow-y:auto;flex:1}
 .modal-body .output-content{max-height:none;overflow:visible;border:none;background:transparent;padding:0}
 .modal-body .output-content::after{display:none}
-.modal-footer{display:flex;gap:8px;padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0}
-/* V2: Processing state */
+.modal-footer{display:flex;gap:8px;padding:16px 24px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+/* Processing */
 .processing-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--info-dim);border-radius:8px;margin-bottom:16px;font-size:13px;color:var(--info);display:none}
 .processing-bar.show{display:flex}
 .processing-dot{width:8px;height:8px;border-radius:50%;background:var(--info);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.page{display:none}.page.active{display:block;animation:fadeIn .2s ease}
+/* Success banner */
+.success-banner{background:var(--success-dim);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:none;animation:fadeIn .3s}
+.success-banner.show{display:flex;align-items:center;gap:12px}
+.success-banner p{font-size:13px;color:var(--success);flex:1}
+/* Health check */
+.health-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.health-item{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:8px}
+.health-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.health-ok{background:var(--success)}.health-err{background:var(--danger)}.health-warn{background:var(--warning)}.health-loading{background:var(--text-muted);animation:pulse 1s infinite}
+.health-label{font-size:13px;color:var(--text-primary);font-weight:500}
+.health-detail{font-size:11px;color:var(--text-muted)}
+/* Pipeline cards on dashboard */
+.pipeline-section{margin-bottom:20px}
+.pipeline-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pipeline-count{background:var(--accent-dim);color:var(--accent);padding:1px 8px;border-radius:10px;font-size:11px}
+.review-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:all .15s}
+.review-item:hover{border-color:var(--border-hover);background:var(--bg-card-hover)}
+.review-info{flex:1;min-width:0}
+.review-model{font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.review-preview{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.review-time{font-size:11px;color:var(--text-muted);white-space:nowrap}
+.review-actions{display:flex;gap:4px;flex-shrink:0}
+/* Model status */
+.model-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.model-card{border:1px solid var(--border);border-radius:10px;padding:14px;transition:all .2s}
+.model-card:hover{border-color:var(--border-hover)}
+.model-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.model-card-name{font-size:14px;font-weight:600;color:var(--text-primary)}
+.model-card-status{width:8px;height:8px;border-radius:50%}
+.model-card-role{font-size:11px;color:var(--text-secondary)}
+.model-card-cost{font-size:12px;font-weight:500;margin-top:8px;padding:4px 8px;border-radius:6px;display:inline-block}
+.model-cost-free{background:var(--success-dim);color:var(--success)}
+.model-cost-paid{background:var(--warning-dim);color:var(--warning)}
+/* Settings */
+.settings-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap}
+.version-tag{font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;padding:2px 6px;background:var(--accent-dim);border-radius:4px;margin-left:8px}
+.page{display:none}.page.active{display:block;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .data-table{width:100%;border-collapse:collapse;font-size:13px}
 .data-table th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
@@ -130,47 +175,28 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 .toast{padding:12px 20px;border-radius:10px;font-size:13px;margin-bottom:8px;animation:slideIn .3s ease;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);font-weight:500}
 .toast-success{background:var(--success);color:#fff}.toast-error{background:var(--danger);color:#fff}.toast-info{background:var(--info);color:#fff}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted)}.empty-state p{font-size:14px;margin-top:8px;font-weight:300}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}.empty-state p{font-size:14px;margin-top:8px;font-weight:300}
 .config-banner{background:var(--warning-dim);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:14px 20px;margin-bottom:20px;font-size:13px;color:var(--warning);display:none}
 .action-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-/* V2: Task type info cards */
-.type-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px}
-.type-card{border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;position:relative}
-.type-card:hover{border-color:var(--border-hover);transform:translateY(-1px)}
-.type-card.active{border-color:var(--accent);background:var(--accent-dim)}
-.type-card-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.type-card-desc{font-size:11px;color:var(--text-secondary);line-height:1.5}
-.type-card-model{font-size:10px;color:var(--accent);margin-top:6px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:4px}
-.type-card-icon{font-size:16px}
-/* Success state after submit */
-.success-banner{background:var(--success-dim);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:14px 20px;margin-bottom:16px;display:none;animation:fadeIn .3s}
-.success-banner.show{display:flex;align-items:center;gap:12px}
-.success-banner p{font-size:13px;color:var(--success);flex:1}
-.success-banner .btn{flex-shrink:0}
-/* V2: Settings import/export */
-.settings-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-.version-tag{font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;padding:2px 6px;background:var(--accent-dim);border-radius:4px;margin-left:8px}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:16px}.stats{grid-template-columns:repeat(2,1fr)}.action-group{flex-direction:column}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:16px}.stats{grid-template-columns:repeat(2,1fr)}.model-status-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.type-info-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="toast-container" id="toasts"></div>
-<!-- V2: Fullscreen reader modal -->
-<div class="modal-overlay" id="readerModal">
-<div class="modal">
+<div class="modal-overlay" id="readerModal"><div class="modal">
 <div class="modal-header"><h2 id="modalTitle">AI output</h2><button class="btn-ghost" onclick="closeModal()" style="font-size:20px">&times;</button></div>
 <div class="modal-body"><div class="output-content md-rendered expanded" id="modalContent"></div></div>
 <div class="modal-footer">
 <button class="btn btn-success btn-sm" id="modalApproveBtn" onclick="modalApprove()">Approve</button>
 <button class="btn btn-danger btn-sm" id="modalRejectBtn" onclick="modalReject()">Reject</button>
 <button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('modalContent').innerText);toast('Copied!','success')">Copy text</button>
+<button class="btn btn-sm" onclick="downloadOutput()">Download .md</button>
 <button class="btn btn-sm" style="margin-left:auto" onclick="closeModal()">Close</button>
 </div>
-</div>
-</div>
+</div></div>
 <div class="app">
 <aside class="sidebar">
-<div class="sidebar-brand"><h1>AI Ops <span class="version-tag">v2.1</span></h1><p>command center</p></div>
+<div class="sidebar-brand"><h1>AI Ops <span class="version-tag">v3</span></h1><p>command center</p></div>
 <div class="nav-section">
 <div class="nav-label">Main</div>
 <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">&#9632;</span>Dashboard</div>
@@ -179,91 +205,101 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 </div>
 <div class="nav-section">
 <div class="nav-label">Manage</div>
+<div class="nav-item" onclick="showPage('models')"><span class="nav-icon">&#9673;</span>AI models</div>
 <div class="nav-item" onclick="showPage('projects')"><span class="nav-icon">&#9883;</span>Projects</div>
+<div class="nav-item" onclick="showPage('health')"><span class="nav-icon">&#9829;</span>System health</div>
 <div class="nav-item" onclick="showPage('settings')"><span class="nav-icon">&#9881;</span>Settings</div>
 </div>
-<div class="theme-toggle">
-<div class="toggle-track on" id="themeToggle" onclick="toggleTheme()"><div class="toggle-thumb"></div></div>
-<span class="toggle-label" id="themeLabel">Dark mode</span>
-</div>
+<div class="theme-toggle"><div class="toggle-track on" id="themeToggle" onclick="toggleTheme()"><div class="toggle-thumb"></div></div><span class="toggle-label" id="themeLabel">Dark mode</span></div>
 <div class="conn-status"><span class="conn-dot" id="connDot"></span><span id="connText">Checking...</span></div>
 </aside>
 <main class="main">
 <div class="config-banner" id="configBanner"></div>
-<!-- Dashboard -->
+<!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
 <div class="page-header"><div><div class="page-title">Dashboard</div><div class="page-subtitle">Your AI operations at a glance</div></div><button class="btn btn-primary" onclick="showPage('submit')">&#10010; New task</button></div>
 <div class="stats">
-<div class="stat-card"><div class="stat-label">Total outputs</div><div class="stat-value" id="stat-total">-</div><div class="stat-sub">All time</div></div>
-<div class="stat-card"><div class="stat-label">Pending review</div><div class="stat-value" id="stat-draft">-</div><div class="stat-sub">Need approval</div></div>
-<div class="stat-card"><div class="stat-label">Approved</div><div class="stat-value" id="stat-approved">-</div><div class="stat-sub">Ready to use</div></div>
-<div class="stat-card"><div class="stat-label">Projects</div><div class="stat-value" id="stat-projects">-</div><div class="stat-sub">Active</div></div>
+<div class="stat-card" onclick="showPage('outputs')"><div class="stat-label">Total outputs</div><div class="stat-value" id="stat-total">-</div><div class="stat-sub">All time</div></div>
+<div class="stat-card" onclick="filterAndShow('draft')"><div class="stat-label">Pending review</div><div class="stat-value" id="stat-draft">-</div><div class="stat-sub">Need approval</div></div>
+<div class="stat-card" onclick="filterAndShow('approved')"><div class="stat-label">Approved</div><div class="stat-value" id="stat-approved">-</div><div class="stat-sub">Ready to use</div></div>
+<div class="stat-card" onclick="showPage('projects')"><div class="stat-label">Projects</div><div class="stat-value" id="stat-projects">-</div><div class="stat-sub">Active</div></div>
+</div>
+<div class="pipeline-section" id="reviewSection" style="display:none">
+<div class="pipeline-title">Needs your review <span class="pipeline-count" id="reviewCount">0</span></div>
+<div id="reviewItems"></div>
 </div>
 <div class="card"><div class="card-header"><div class="card-title">Recent outputs</div><button class="btn btn-sm" onclick="loadOutputs();showPage('outputs')">View all</button></div><div id="recent-outputs" class="card-body"><div class="empty-state"><div class="spinner"></div><p>Loading...</p></div></div></div>
 </div>
-<!-- Submit Task -->
+<!-- SUBMIT TASK -->
 <div class="page" id="page-submit">
 <div class="page-header"><div><div class="page-title">Submit task</div><div class="page-subtitle">Send work to your AI team</div></div></div>
-<div class="processing-bar" id="processingBar"><div class="processing-dot"></div><span id="processingText">Processing your task...</span></div>
+<div class="processing-bar" id="processingBar"><div class="processing-dot"></div><span id="processingText">Processing...</span></div>
+<div class="success-banner" id="successBanner"><p id="successText">Done!</p><button class="btn btn-sm btn-primary" onclick="resetSubmitForm()">Submit another</button><button class="btn btn-sm" onclick="showPage('outputs')">View outputs</button></div>
 <div class="card"><div class="card-body">
 <div class="form-group"><label class="form-label">Task type — select what you need</label>
 <div class="type-info-grid">
-<div class="type-card active" onclick="selectTypeCard(this,'transcript')">
-<div class="type-card-name"><span class="type-card-icon">&#128221;</span> Meeting transcript</div>
-<div class="type-card-desc">Paste raw meeting notes or transcript. Gets you a structured summary, decisions, action items, and risks.</div>
-<div class="type-card-model">&#9733; Best: Claude (writer)</div>
-</div>
-<div class="type-card" onclick="selectTypeCard(this,'notes')">
-<div class="type-card-name"><span class="type-card-icon">&#128196;</span> Notes to document</div>
-<div class="type-card-desc">Turn messy bullet points or chat dumps into a clean, professional business document with headings and structure.</div>
-<div class="type-card-model">&#9733; Best: Claude (writer)</div>
-</div>
-<div class="type-card" onclick="selectTypeCard(this,'summarize')">
-<div class="type-card-name"><span class="type-card-icon">&#128200;</span> Summarize</div>
-<div class="type-card-desc">Condense long text into key points. Good for reports, articles, emails, or any content you need shortened.</div>
-<div class="type-card-model">&#9733; Best: Gemini (free)</div>
-</div>
-<div class="type-card" onclick="selectTypeCard(this,'proposal')">
-<div class="type-card-name"><span class="type-card-icon">&#128188;</span> Proposal draft</div>
-<div class="type-card-desc">Give a project concept and get a full proposal: objectives, scope, phases, risks, budget, and executive summary.</div>
-<div class="type-card-model">&#9733; Best: ChatGPT (planner)</div>
-</div>
-<div class="type-card" onclick="selectTypeCard(this,'custom')">
-<div class="type-card-name"><span class="type-card-icon">&#9998;</span> Custom prompt</div>
-<div class="type-card-desc">Ask anything. Write your own instructions. The AI responds as a general-purpose assistant.</div>
-<div class="type-card-model">&#9733; Best: Any model</div>
-</div>
+<div class="type-card active" onclick="selectTypeCard(this,'transcript')"><div class="type-card-name"><span class="type-card-icon">&#128221;</span>Meeting transcript</div><div class="type-card-desc">Raw notes or transcript into structured summary, decisions, and action items.</div><div class="type-card-model">Best: Claude (writer)</div></div>
+<div class="type-card" onclick="selectTypeCard(this,'notes')"><div class="type-card-name"><span class="type-card-icon">&#128196;</span>Notes to document</div><div class="type-card-desc">Messy bullets or chat dumps into a clean professional document.</div><div class="type-card-model">Best: Claude (writer)</div></div>
+<div class="type-card" onclick="selectTypeCard(this,'summarize')"><div class="type-card-name"><span class="type-card-icon">&#128200;</span>Summarize</div><div class="type-card-desc">Condense long text into key points. Reports, articles, emails.</div><div class="type-card-model">Best: Gemini (free)</div></div>
+<div class="type-card" onclick="selectTypeCard(this,'proposal')"><div class="type-card-name"><span class="type-card-icon">&#128188;</span>Proposal draft</div><div class="type-card-desc">Project concept into full proposal with scope, phases, risks, budget.</div><div class="type-card-model">Best: ChatGPT (planner)</div></div>
+<div class="type-card" onclick="selectTypeCard(this,'custom')"><div class="type-card-name"><span class="type-card-icon">&#9998;</span>Custom prompt</div><div class="type-card-desc">Ask anything. Your own instructions to the AI.</div><div class="type-card-model">Best: Any model</div></div>
 </div></div>
+<div class="extra-fields" id="extraFields"></div>
 <div class="form-group"><label class="form-label">AI model</label>
 <select class="form-select" id="model-select">
-<optgroup label="Your AI team">
-<option value="openai/gpt-4o">ChatGPT (GPT-4o) — planner / architect [$]</option>
-<option value="anthropic/claude-sonnet-4">Claude Sonnet — writer / processor [$]</option>
-<option value="google/gemini-2.0-flash-exp:free">Gemini Flash — checker / research [FREE]</option>
-</optgroup>
-<optgroup label="Free alternatives">
-<option value="openrouter/free" selected>Auto (best free model) [FREE]</option>
-<option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B [FREE]</option>
-<option value="deepseek/deepseek-chat:free">DeepSeek V3 [FREE]</option>
-</optgroup>
+<optgroup label="Your AI team"><option value="openai/gpt-4o">ChatGPT (GPT-4o) — planner [$]</option><option value="anthropic/claude-sonnet-4">Claude Sonnet — writer [$]</option><option value="google/gemini-2.0-flash-exp:free">Gemini Flash — checker [FREE]</option></optgroup>
+<optgroup label="Free models"><option value="openrouter/free" selected>Auto (best free) [FREE]</option><option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B [FREE]</option><option value="deepseek/deepseek-chat:free">DeepSeek V3 [FREE]</option></optgroup>
 </select></div>
 <div class="form-group"><label class="form-label">Project (optional)</label><select class="form-select" id="project-select"><option value="">No project</option></select></div>
-<div class="form-group"><label class="form-label">Your input</label><textarea class="form-textarea" id="task-input" placeholder="Paste your meeting transcript, rough notes, or describe what you need..."></textarea></div>
+<div class="form-group"><label class="form-label">Your input</label><textarea class="form-textarea" id="task-input" placeholder="Paste your content here..."></textarea></div>
 <div class="action-group">
 <button class="btn btn-primary" id="submit-btn" onclick="submitTask()">&#9654; Run AI task</button>
-<button class="btn btn-compare" id="compare-btn" onclick="submitCompare()">&#9878; Compare: ChatGPT vs Claude vs Gemini</button>
+<button class="btn btn-compare" id="compare-btn" onclick="submitCompare()">&#9878; Compare 3 models</button>
 <button class="btn btn-debate" id="debate-btn" onclick="submitDebate()">&#9733; AI debate</button>
 </div>
-<div class="success-banner" id="successBanner"><p id="successText">Task complete! Output saved and ready for review.</p><button class="btn btn-sm btn-primary" onclick="resetSubmitForm()">Submit another task</button><button class="btn btn-sm" onclick="showPage('outputs')">View outputs</button></div>
 <div id="submit-result" style="margin-top:20px;display:none"></div>
 </div></div>
 </div>
-<!-- Outputs -->
+<!-- OUTPUTS -->
 <div class="page" id="page-outputs">
-<div class="page-header"><div><div class="page-title">All outputs</div><div class="page-subtitle">Every AI-generated result</div></div><select class="form-select" style="width:auto" onchange="filterOutputs(this.value)"><option value="all">All</option><option value="draft">Draft</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div>
+<div class="page-header"><div><div class="page-title">All outputs</div><div class="page-subtitle" id="outputs-subtitle">Every AI-generated result</div></div><div style="display:flex;gap:8px"><select class="form-select" style="width:auto" id="outputFilter" onchange="filterOutputs(this.value)"><option value="all">All</option><option value="draft">Draft</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div></div>
 <div id="outputs-list"><div class="empty-state"><div class="spinner"></div><p>Loading...</p></div></div>
 </div>
-<!-- Projects -->
+<!-- AI MODELS -->
+<div class="page" id="page-models">
+<div class="page-header"><div><div class="page-title">AI models</div><div class="page-subtitle">Your available AI team and their status</div></div><a href="https://openrouter.ai/settings/credits" target="_blank" class="btn btn-primary btn-sm">Add OpenRouter credit</a></div>
+<div class="model-status-grid">
+<div class="model-card" style="border-top:3px solid #ef4444">
+<div class="model-card-head"><div class="model-card-name">ChatGPT</div><div class="model-card-status" id="gpt-status"></div></div>
+<div class="model-card-role">GPT-4o — Planner, architect, system design</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;line-height:1.6">Best for: strategy, outlines, workflow design, messy-to-structured conversion, business + technical bridging.</div>
+<div class="model-card-cost model-cost-paid">~$0.01 per page</div>
+</div>
+<div class="model-card" style="border-top:3px solid #f59e0b">
+<div class="model-card-head"><div class="model-card-name">Claude</div><div class="model-card-status" id="claude-status"></div></div>
+<div class="model-card-role">Sonnet — Writer, processor, document engine</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;line-height:1.6">Best for: long documents, proposals, SOPs, transcripts, polished business writing, version comparison.</div>
+<div class="model-card-cost model-cost-paid">~$0.01 per page</div>
+</div>
+<div class="model-card" style="border-top:3px solid #10b981">
+<div class="model-card-head"><div class="model-card-name">Gemini</div><div class="model-card-status" id="gemini-status"></div></div>
+<div class="model-card-role">Flash — Checker, research, second opinion</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:8px;line-height:1.6">Best for: alternative perspectives, fast synthesis, cross-checking, gap detection, research support.</div>
+<div class="model-card-cost model-cost-free">FREE</div>
+</div>
+</div>
+<div class="card"><div class="card-header"><div class="card-title">Free models (no credit needed)</div></div><div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:2">
+<div><strong>Auto router</strong> — automatically picks the best free model for your request</div>
+<div><strong>Llama 3.3 70B</strong> — strong general model by Meta, good for documents</div>
+<div><strong>DeepSeek V3</strong> — excellent for detailed writing and analysis</div>
+<div><strong>Gemini Flash</strong> — Google's model, 1M token context, good for long docs</div>
+</div></div>
+<div class="card"><div class="card-header"><div class="card-title">How model pricing works</div></div><div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:1.8">
+<p>All models are accessed through <strong>OpenRouter</strong> using your single API key. Free models cost nothing and have a limit of ~200 requests/day. Paid models (ChatGPT, Claude) charge per use from your OpenRouter credit balance — typically $0.01 per page of output.</p>
+<p style="margin-top:8px">To use paid models: go to <a href="https://openrouter.ai/settings/credits" target="_blank" style="color:var(--accent)">openrouter.ai/settings/credits</a> and add $5. That gives you hundreds of ChatGPT + Claude calls.</p>
+</div></div>
+</div>
+<!-- PROJECTS -->
 <div class="page" id="page-projects">
 <div class="page-header"><div><div class="page-title">Projects</div><div class="page-subtitle">Organize your work</div></div><button class="btn btn-primary" onclick="showNewProject()">&#10010; New project</button></div>
 <div id="new-project-form" style="display:none;margin-bottom:16px"><div class="card"><div class="card-body">
@@ -273,7 +309,19 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 </div></div></div>
 <div id="projects-list"><div class="empty-state"><div class="spinner"></div><p>Loading...</p></div></div>
 </div>
-<!-- Settings -->
+<!-- HEALTH -->
+<div class="page" id="page-health">
+<div class="page-header"><div><div class="page-title">System health</div><div class="page-subtitle">Check all connections and services</div></div><button class="btn btn-sm" onclick="runHealthCheck()">Re-check all</button></div>
+<div class="health-grid" id="healthGrid">
+<div class="health-item"><div class="health-dot health-loading" id="h-supabase"></div><div><div class="health-label">Supabase database</div><div class="health-detail" id="h-supabase-detail">Checking...</div></div></div>
+<div class="health-item"><div class="health-dot health-loading" id="h-openrouter"></div><div><div class="health-label">OpenRouter AI</div><div class="health-detail" id="h-openrouter-detail">Checking...</div></div></div>
+<div class="health-item"><div class="health-dot health-loading" id="h-n8n"></div><div><div class="health-label">n8n workflows</div><div class="health-detail" id="h-n8n-detail">Checking...</div></div></div>
+<div class="health-item"><div class="health-dot health-loading" id="h-gpt"></div><div><div class="health-label">ChatGPT (GPT-4o)</div><div class="health-detail" id="h-gpt-detail">Checking...</div></div></div>
+<div class="health-item"><div class="health-dot health-loading" id="h-claude"></div><div><div class="health-label">Claude Sonnet</div><div class="health-detail" id="h-claude-detail">Checking...</div></div></div>
+<div class="health-item"><div class="health-dot health-loading" id="h-gemini"></div><div><div class="health-label">Gemini Flash</div><div class="health-detail" id="h-gemini-detail">Checking...</div></div></div>
+</div>
+</div>
+<!-- SETTINGS -->
 <div class="page" id="page-settings">
 <div class="page-header"><div><div class="page-title">Settings</div><div class="page-subtitle">Configure your system</div></div></div>
 <div class="card"><div class="card-header"><div class="card-title">Connections</div></div><div class="card-body">
@@ -289,94 +337,60 @@ body{font-family:'Outfit',-apple-system,sans-serif;background:var(--bg-primary);
 <button class="btn btn-sm btn-danger" onclick="if(confirm('Clear all settings?')){localStorage.clear();location.reload()}">Reset all</button>
 </div>
 </div></div>
-<div class="card"><div class="card-header"><div class="card-title">System info</div></div><div class="card-body" style="font-size:13px;color:var(--text-secondary);line-height:2.2">
-<div>Dashboard: v2.1.0</div><div>n8n: <span id="info-n8n">-</span></div><div>Database: <span id="info-db">-</span></div><div>AI: OpenRouter (ChatGPT + Claude + Gemini + free models)</div>
-</div></div>
 </div>
 </main>
 </div>
 <script>
-// ===== THEME =====
 function toggleTheme(){const h=document.documentElement,t=document.getElementById('themeToggle'),l=document.getElementById('themeLabel');if(h.getAttribute('data-theme')==='dark'){h.setAttribute('data-theme','light');t.classList.remove('on');l.textContent='Light mode';localStorage.setItem('ai_ops_theme','light')}else{h.setAttribute('data-theme','dark');t.classList.add('on');l.textContent='Dark mode';localStorage.setItem('ai_ops_theme','dark')}}
-
-// ===== CONFIG =====
 function getConfig(){return{supabaseUrl:localStorage.getItem('ai_ops_supabase_url')||'',supabaseKey:localStorage.getItem('ai_ops_supabase_key')||'',webhookUrl:localStorage.getItem('ai_ops_webhook_url')||'',openrouterKey:localStorage.getItem('ai_ops_openrouter_key')||''}}
 let sb=null;
 function initSupabase(){const c=getConfig();if(c.supabaseUrl&&c.supabaseKey){sb=supabase.createClient(c.supabaseUrl,c.supabaseKey);return true}return false}
-
-// V2: Export/Import settings
 function exportSettings(){const cfg={supabaseUrl:localStorage.getItem('ai_ops_supabase_url'),supabaseKey:localStorage.getItem('ai_ops_supabase_key'),webhookUrl:localStorage.getItem('ai_ops_webhook_url'),openrouterKey:localStorage.getItem('ai_ops_openrouter_key'),theme:localStorage.getItem('ai_ops_theme')};const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-ops-config.json';a.click();toast('Config exported!','success')}
-function importSettings(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){try{const cfg=JSON.parse(ev.target.result);if(cfg.supabaseUrl)localStorage.setItem('ai_ops_supabase_url',cfg.supabaseUrl);if(cfg.supabaseKey)localStorage.setItem('ai_ops_supabase_key',cfg.supabaseKey);if(cfg.webhookUrl)localStorage.setItem('ai_ops_webhook_url',cfg.webhookUrl);if(cfg.openrouterKey)localStorage.setItem('ai_ops_openrouter_key',cfg.openrouterKey);if(cfg.theme)localStorage.setItem('ai_ops_theme',cfg.theme);toast('Config imported! Reloading...','success');setTimeout(()=>location.reload(),1000)}catch(err){toast('Invalid config file','error')}};reader.readAsText(file);e.target.value=''}
-
-// ===== NAV =====
+function importSettings(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=function(ev){try{const c=JSON.parse(ev.target.result);Object.entries(c).forEach(([k,v])=>{if(v)localStorage.setItem('ai_ops_'+k.replace(/([A-Z])/g,'_$1').toLowerCase(),v)});if(c.supabaseUrl)localStorage.setItem('ai_ops_supabase_url',c.supabaseUrl);if(c.supabaseKey)localStorage.setItem('ai_ops_supabase_key',c.supabaseKey);if(c.webhookUrl)localStorage.setItem('ai_ops_webhook_url',c.webhookUrl);if(c.openrouterKey)localStorage.setItem('ai_ops_openrouter_key',c.openrouterKey);if(c.theme)localStorage.setItem('ai_ops_theme',c.theme);toast('Imported! Reloading...','success');setTimeout(()=>location.reload(),1000)}catch{toast('Invalid file','error')}};r.readAsText(file);e.target.value=''}
 let currentTaskType='transcript',currentOutputId=null,modalOutputId=null;
-function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');const m={dashboard:0,submit:1,outputs:2,projects:3,settings:4},items=document.querySelectorAll('.nav-item');if(m[n]!==undefined&&items[m[n]])items[m[n]].classList.add('active');if(n==='outputs')loadOutputs();if(n==='projects')loadProjects();if(n==='dashboard')loadDashboard();if(n==='settings')loadSettings()}
-function selectType(el,t){document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');currentTaskType=t}
-function selectTypeCard(el,t){document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');currentTaskType=t;const modelMap={transcript:'anthropic/claude-sonnet-4',notes:'anthropic/claude-sonnet-4',summarize:'google/gemini-2.0-flash-exp:free',proposal:'openai/gpt-4o',custom:'openrouter/free'};const sel=document.getElementById('model-select');const target=modelMap[t]||'openrouter/free';for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===target){sel.selectedIndex=i;break}}}
+function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));document.getElementById('page-'+n).classList.add('active');const m={dashboard:0,submit:1,outputs:2,models:3,projects:4,health:5,settings:6},items=document.querySelectorAll('.nav-item');if(m[n]!==undefined&&items[m[n]])items[m[n]].classList.add('active');if(n==='outputs')loadOutputs();if(n==='projects')loadProjects();if(n==='dashboard')loadDashboard();if(n==='settings')loadSettings();if(n==='health')runHealthCheck();if(n==='models')checkModelStatus()}
+function filterAndShow(status){showPage('outputs');setTimeout(()=>{document.getElementById('outputFilter').value=status;filterOutputs(status)},100)}
+function selectTypeCard(el,t){document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');currentTaskType=t;const modelMap={transcript:'anthropic/claude-sonnet-4',notes:'anthropic/claude-sonnet-4',summarize:'google/gemini-2.0-flash-exp:free',proposal:'openai/gpt-4o',custom:'openrouter/free'};const sel=document.getElementById('model-select');const target=modelMap[t]||'openrouter/free';for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===target){sel.selectedIndex=i;break}}showExtraFields(t)}
+function showExtraFields(t){const ef=document.getElementById('extraFields');const fields={transcript:'<label class="form-label">Meeting details (optional — improves output quality)</label><div class="form-row"><div><label class="form-label">Date</label><input class="form-input" id="ef-date" type="date"></div><div><label class="form-label">Meeting topic</label><input class="form-input" id="ef-topic" placeholder="e.g., Q1 review"></div></div><label class="form-label">Attendees</label><input class="form-input" id="ef-attendees" placeholder="e.g., Kito, Sarah, Mike">',notes:'<label class="form-label">Document options</label><div class="form-row"><div><label class="form-label">Output format</label><select class="form-select" id="ef-doctype"><option>Business report</option><option>Memo</option><option>Brief</option><option>SOP</option><option>Email draft</option></select></div><div><label class="form-label">Tone</label><select class="form-select" id="ef-tone"><option>Professional</option><option>Formal</option><option>Casual</option><option>Technical</option></select></div></div>',summarize:'<label class="form-label">Summary options</label><div class="form-row"><div><label class="form-label">Length</label><select class="form-select" id="ef-length"><option>Short (1 paragraph)</option><option>Medium (3-5 paragraphs)</option><option>Detailed (full page)</option></select></div><div><label class="form-label">Focus on</label><select class="form-select" id="ef-focus"><option>Key points</option><option>Decisions only</option><option>Numbers and data</option><option>Action items</option></select></div></div>',proposal:'<label class="form-label">Proposal details (optional)</label><div class="form-row"><div><label class="form-label">Client / audience</label><input class="form-input" id="ef-client" placeholder="e.g., Board of Directors"></div><div><label class="form-label">Budget range</label><input class="form-input" id="ef-budget" placeholder="e.g., $10,000-50,000"></div></div><label class="form-label">Timeline</label><input class="form-input" id="ef-timeline" placeholder="e.g., 3 months">',custom:''};ef.innerHTML=fields[t]||'';ef.classList.toggle('show',!!fields[t])}
+function getExtraContext(){let ctx='';const t=currentTaskType;if(t==='transcript'){const d=document.getElementById('ef-date')?.value;const topic=document.getElementById('ef-topic')?.value;const att=document.getElementById('ef-attendees')?.value;if(d)ctx+=`Meeting date: ${d}. `;if(topic)ctx+=`Topic: ${topic}. `;if(att)ctx+=`Attendees: ${att}. `}else if(t==='notes'){const dt=document.getElementById('ef-doctype')?.value;const tone=document.getElementById('ef-tone')?.value;if(dt)ctx+=`Format as: ${dt}. `;if(tone)ctx+=`Tone: ${tone}. `}else if(t==='summarize'){const len=document.getElementById('ef-length')?.value;const focus=document.getElementById('ef-focus')?.value;if(len)ctx+=`Length: ${len}. `;if(focus)ctx+=`Focus: ${focus}. `}else if(t==='proposal'){const cl=document.getElementById('ef-client')?.value;const bg=document.getElementById('ef-budget')?.value;const tl=document.getElementById('ef-timeline')?.value;if(cl)ctx+=`Audience: ${cl}. `;if(bg)ctx+=`Budget: ${bg}. `;if(tl)ctx+=`Timeline: ${tl}. `}return ctx}
 function resetSubmitForm(){document.getElementById('task-input').value='';document.getElementById('submit-result').style.display='none';document.getElementById('submit-result').innerHTML='';document.getElementById('successBanner').classList.remove('show');document.getElementById('task-input').focus()}
-function showSuccess(msg){document.getElementById('successText').textContent=msg||'Task complete! Output saved.';document.getElementById('successBanner').classList.add('show')}
-function toast(msg,type='info'){const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),4000)}
-
-// ===== PROCESSING STATE =====
-function showProcessing(text){document.getElementById('processingBar').classList.add('show');document.getElementById('processingText').textContent=text||'Processing...'}
+function showSuccess(msg){document.getElementById('successText').textContent=msg;document.getElementById('successBanner').classList.add('show')}
+function showProcessing(t){document.getElementById('processingBar').classList.add('show');document.getElementById('processingText').textContent=t||'Processing...'}
 function hideProcessing(){document.getElementById('processingBar').classList.remove('show')}
-
-// ===== MODAL =====
-function openModal(content,title,outputId){document.getElementById('modalContent').innerHTML=renderMarkdown(content);document.getElementById('modalTitle').textContent=title||'AI output';modalOutputId=outputId||null;document.getElementById('modalApproveBtn').style.display=outputId?'inline-flex':'none';document.getElementById('modalRejectBtn').style.display=outputId?'inline-flex':'none';document.getElementById('readerModal').classList.add('open')}
+function toast(msg,type='info'){const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),4000)}
+function renderMarkdown(text){try{return marked.parse(text||'')}catch{return text||''}}
+function openModal(content,title,outputId){document.getElementById('modalContent').innerHTML=renderMarkdown(content);document.getElementById('modalTitle').textContent=title||'AI output';modalOutputId=outputId||null;const hasId=outputId&&outputId!=='null'&&outputId!=='undefined';document.getElementById('modalApproveBtn').style.display=hasId?'inline-flex':'none';document.getElementById('modalRejectBtn').style.display=hasId?'inline-flex':'none';document.getElementById('readerModal').classList.add('open')}
 function closeModal(){document.getElementById('readerModal').classList.remove('open');modalOutputId=null}
 async function modalApprove(){if(sb&&modalOutputId){await sb.from('outputs').update({status:'approved'}).eq('id',modalOutputId);toast('Approved!','success');closeModal();loadOutputs();loadDashboard()}}
 async function modalReject(){if(sb&&modalOutputId){await sb.from('outputs').update({status:'rejected'}).eq('id',modalOutputId);toast('Rejected','info');closeModal();loadOutputs();loadDashboard()}}
+function downloadOutput(){const text=document.getElementById('modalContent').innerText;const blob=new Blob([text],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ai-output-'+Date.now()+'.md';a.click();toast('Downloaded!','success')}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-
-// ===== MARKDOWN =====
-function renderMarkdown(text){try{return marked.parse(text||'')}catch(e){return text||''}}
-
-// ===== AI CALLS =====
-const PROMPTS={transcript:"You are a professional meeting assistant. Produce:\n1. **Meeting summary** (3-5 sentences)\n2. **Key decisions**\n3. **Action items** (table: Action | Owner | Deadline | Priority)\n4. **Open questions**\n5. **Risks or concerns**\nBe specific. Use names when mentioned.",notes:"Convert these rough notes into a structured business document with:\n1. **Executive summary**\n2. **Main content** (organized with clear headings)\n3. **Key points**\n4. **Next steps**\nWrite in professional business English.",summarize:"Summarize concisely with all key points. Use bullet points for clarity. Include any decisions, numbers, or deadlines mentioned.",proposal:"Create a business proposal:\n1. **Title**\n2. **Objective**\n3. **Scope**\n4. **Key features**\n5. **Implementation phases**\n6. **Risks**\n7. **Budget considerations**\n8. **Executive summary**",custom:"Respond thoughtfully and thoroughly."};
-
+const PROMPTS={transcript:"You are a professional meeting assistant. Produce a well-formatted response with:\n## Meeting summary\n3-5 sentences.\n## Key decisions\nBullet list.\n## Action items\n| Action | Owner | Deadline | Priority |\n|---|---|---|---|\n\n## Open questions\nBullet list.\n## Risks or concerns\nBullet list.\n\nBe specific. Use names when mentioned.",notes:"Convert these rough notes into a structured business document.\n## Executive summary\n## Main content\nOrganize with clear headings.\n## Key points\n## Next steps\nWrite in professional business English.",summarize:"Summarize concisely. Use:\n## Key points\nBullet list of main points.\n## Important details\nNumbers, dates, decisions.\n## Conclusion\n1-2 sentences.",proposal:"Create a business proposal:\n## Title\n## Objective\n## Scope\n## Key features\n## Implementation phases\nPhase 1, 2, 3 with timelines.\n## Risks\n## Budget considerations\n## Executive summary",custom:"Respond thoughtfully and thoroughly. Use markdown formatting for clarity."};
 async function callAI(model,sys,user,key){const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model,messages:[{role:'system',content:sys},{role:'user',content:user}]})});return await r.json()}
-
-// ===== DASHBOARD =====
-async function loadDashboard(){if(!sb){showConfigBanner();return}try{const{data:outputs}=await sb.from('outputs').select('*').order('created_at',{ascending:false});const{data:projects}=await sb.from('projects').select('*');const a=outputs||[],p=projects||[];document.getElementById('stat-total').textContent=a.length;document.getElementById('stat-draft').textContent=a.filter(o=>o.status==='draft').length;document.getElementById('stat-approved').textContent=a.filter(o=>o.status==='approved').length;document.getElementById('stat-projects').textContent=p.length;document.getElementById('output-count').textContent=a.filter(o=>o.status==='draft').length;const c=document.getElementById('recent-outputs');if(a.length===0){c.innerHTML='<div class="empty-state"><p>No outputs yet. Submit your first task!</p></div>';return}c.innerHTML=a.slice(0,5).map(o=>renderOutputItem(o)).join('')}catch(e){document.getElementById('recent-outputs').innerHTML='<div class="empty-state"><p>Could not load. Check settings.</p></div>'}}
-
-// ===== SUBMIT =====
-async function submitTask(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter some text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set OpenRouter key in Settings','error');return}const model=document.getElementById('model-select').value;const btn=document.getElementById('submit-btn');btn.innerHTML='<span class="spinner"></span> Processing...';btn.disabled=true;showProcessing('Sending to '+model.split('/').pop()+'...');try{const data=await callAI(model,PROMPTS[currentTaskType]||PROMPTS.custom,input,cfg.openrouterKey);hideProcessing();if(data.choices&&data.choices[0]){const content=data.choices[0].message.content;let outputId=null;if(sb){const{data:row}=await sb.from('outputs').insert({content,model:data.model||model,status:'draft'}).select('id').single();outputId=row?.id}currentOutputId=outputId;showResult(content,data.model||model,outputId);toast('Done!','success');loadDashboard();document.getElementById('task-input').value='';showSuccess('Task complete! Output saved to your dashboard.')}else{toast('Error: '+(data.error?.message||'Unknown'),'error')}}catch(e){hideProcessing();toast('Error: '+e.message,'error')}btn.innerHTML='&#9654; Run AI task';btn.disabled=false}
-
-function showResult(content,model,outputId){const container=document.getElementById('submit-result');container.style.display='block';container.innerHTML=`<div class="card" style="margin:0"><div class="card-header"><div class="card-title">AI response <span class="output-model">${model}</span></div><div style="display:flex;gap:6px">${outputId?`<button class="btn btn-sm btn-success" onclick="approveById('${outputId}')">Approve</button><button class="btn btn-sm btn-danger" onclick="rejectById('${outputId}')">Reject</button>`:''}
-<button class="btn btn-sm" onclick="openModal(\`${content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`,'Full response','${outputId||''}')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.card').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div><div class="card-body"><div class="output-content md-rendered expanded">${renderMarkdown(content)}</div></div></div>`}
-
-async function submitCompare(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set key in Settings','error');return}const models=[{id:'openai/gpt-4o',name:'ChatGPT',role:'Planner',css:'model-gpt'},{id:'anthropic/claude-sonnet-4',name:'Claude',role:'Writer',css:'model-claude'},{id:'google/gemini-2.0-flash-exp:free',name:'Gemini',role:'Checker',css:'model-gemini'}];const btn=document.getElementById('compare-btn');btn.innerHTML='<span class="spinner"></span> Asking 3...';btn.disabled=true;showProcessing('Sending to ChatGPT, Claude, and Gemini...');const sys=PROMPTS[currentTaskType]||PROMPTS.custom;const results=await Promise.allSettled(models.map(m=>callAI(m.id,sys,input,cfg.openrouterKey)));hideProcessing();let html='<div class="card" style="margin:0"><div class="card-header"><div class="card-title">3-model comparison</div></div><div class="card-body">';results.forEach((r,i)=>{const m=models[i];if(r.status==='fulfilled'&&r.value.choices){const v=r.value;const content=v.choices[0].message.content;html+=`<div class="output-item ${m.css}"><div class="output-meta"><span class="output-model">${m.name}</span><span style="font-size:11px;color:var(--text-muted)">${m.role}</span><span style="font-size:11px;color:var(--text-muted);margin-left:auto">$${(v.usage?.cost||0).toFixed(4)}</span></div><div class="output-content md-rendered collapsed">${renderMarkdown(content)}</div><button class="expand-btn" onclick="toggleExpand(this)">Show full response</button><div class="output-actions"><button class="btn btn-sm btn-success" onclick="pickWinner(this)">Use this</button><button class="btn btn-sm" onclick="openModal(\`${content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`,'${m.name} response')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div>`}else{html+=`<div class="output-item ${m.css}"><div class="output-meta"><span class="output-model">${m.name}</span><span style="color:var(--danger);font-size:12px">${r.value?.error?.message||'Failed'}</span></div><div style="font-size:12px;color:var(--text-muted);padding:8px 0">Add $5 credit at openrouter.ai/settings/credits</div></div>`}});html+='</div></div>';document.getElementById('submit-result').innerHTML=html;document.getElementById('submit-result').style.display='block';btn.innerHTML='&#9878; Compare: ChatGPT vs Claude vs Gemini';btn.disabled=false;toast('Compared!','success');document.getElementById('task-input').value='';showSuccess('3-model comparison complete! Pick the winner below.')}
-
-async function submitDebate(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set key in Settings','error');return}const models=[{id:'openai/gpt-4o',name:'ChatGPT',css:'model-gpt'},{id:'anthropic/claude-sonnet-4',name:'Claude',css:'model-claude'},{id:'google/gemini-2.0-flash-exp:free',name:'Gemini',css:'model-gemini'}];const btn=document.getElementById('debate-btn');btn.innerHTML='<span class="spinner"></span> Round 1...';btn.disabled=true;showProcessing('Round 1: All 3 models answering independently...');try{const r1=await Promise.allSettled(models.map(m=>callAI(m.id,'You are a strategic advisor. Give your best recommendation with clear reasoning.',input,cfg.openrouterKey)));const opinions=r1.filter(r=>r.status==='fulfilled'&&r.value.choices).map((r,i)=>({model:models[i].name,css:models[i].css,content:r.value.choices[0].message.content}));if(opinions.length<2){hideProcessing();toast('Need 2+ models. Add credit.','error');btn.innerHTML='&#9733; AI debate';btn.disabled=false;return}showProcessing('Round 2: Synthesizing all perspectives...');const di=opinions.map(o=>`--- ${o.model} ---\n${o.content}`).join('\n\n');const sd=await callAI(opinions.length===3?'openai/gpt-4o':'openrouter/free','Synthesize multiple AI perspectives into:\n1. **Consensus** (what all agree)\n2. **Key disagreements**\n3. **Strengths of each perspective**\n4. **Final recommendation** (combined best answer)\n5. **Risk factors**',`Question: "${input}"\n\n${di}`,cfg.openrouterKey);hideProcessing();const syn=sd.choices?.[0]?.message?.content||'Could not synthesize';let html='<div class="card" style="margin:0"><div class="card-header"><div class="card-title">AI debate — 3 perspectives synthesized</div></div><div class="card-body">';opinions.forEach(o=>{html+=`<div class="output-item ${o.css}"><div class="output-meta"><span class="output-model">${o.model}</span></div><div class="output-content md-rendered collapsed">${renderMarkdown(o.content)}</div><button class="expand-btn" onclick="toggleExpand(this)">Show full</button></div>`});html+=`<div class="output-item model-synthesis"><div class="output-meta"><span class="output-model" style="background:var(--accent);color:#fff">Final synthesis</span></div><div class="output-content md-rendered expanded">${renderMarkdown(syn)}</div><div class="output-actions"><button class="btn btn-sm btn-success" onclick="pickWinner(this)">Approve</button><button class="btn btn-sm" onclick="openModal(\`${syn.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`,'Debate synthesis')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div>`;html+='</div></div>';document.getElementById('submit-result').innerHTML=html;document.getElementById('submit-result').style.display='block';toast('Debate complete!','success');document.getElementById('task-input').value='';showSuccess('AI debate complete! Review the synthesis below.')}catch(e){hideProcessing();toast('Error: '+e.message,'error')}btn.innerHTML='&#9733; AI debate';btn.disabled=false}
-
-// V2: Expand/collapse
-function toggleExpand(btn){const content=btn.previousElementSibling;if(content.classList.contains('collapsed')){content.classList.remove('collapsed');content.classList.add('expanded');btn.textContent='Collapse'}else{content.classList.remove('expanded');content.classList.add('collapsed');btn.textContent='Show full response'}}
-
-// V2: Approve/reject by ID
+async function loadDashboard(){if(!sb){showConfigBanner();return}try{const{data:outputs}=await sb.from('outputs').select('*').order('created_at',{ascending:false});const{data:projects}=await sb.from('projects').select('*');const a=outputs||[],p=projects||[];const drafts=a.filter(o=>o.status==='draft');document.getElementById('stat-total').textContent=a.length;document.getElementById('stat-draft').textContent=drafts.length;document.getElementById('stat-approved').textContent=a.filter(o=>o.status==='approved').length;document.getElementById('stat-projects').textContent=p.length;document.getElementById('output-count').textContent=drafts.length;const rs=document.getElementById('reviewSection');if(drafts.length>0){rs.style.display='block';document.getElementById('reviewCount').textContent=drafts.length;document.getElementById('reviewItems').innerHTML=drafts.slice(0,5).map(o=>{const preview=(o.content||'').substring(0,80).replace(/[#*]/g,'');const time=new Date(o.created_at).toLocaleString();return`<div class="review-item"><div class="review-info"><div class="review-model">${o.model||'unknown'}</div><div class="review-preview">${preview}...</div></div><div class="review-time">${time}</div><div class="review-actions"><button class="btn btn-sm btn-success" onclick="approveById('${o.id}');this.closest('.review-item').remove()">&#10003;</button><button class="btn btn-sm btn-danger" onclick="rejectById('${o.id}');this.closest('.review-item').remove()">&#10007;</button><button class="btn btn-sm" onclick="openModal(\`${(o.content||'').replace(/`/g,"'").replace(/\$/g,'')}\`,'Review output','${o.id}')">View</button></div></div>`}).join('')}else{rs.style.display='none'}const c=document.getElementById('recent-outputs');if(a.length===0){c.innerHTML='<div class="empty-state"><p>No outputs yet. Submit your first task!</p></div>';return}c.innerHTML=a.slice(0,5).map(o=>renderOutputItem(o)).join('')}catch(e){console.error(e);document.getElementById('recent-outputs').innerHTML='<div class="empty-state"><p>Could not load. Check settings.</p></div>'}}
+async function submitTask(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter some text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set OpenRouter key in Settings','error');return}const model=document.getElementById('model-select').value;const btn=document.getElementById('submit-btn');btn.innerHTML='<span class="spinner"></span> Processing...';btn.disabled=true;showProcessing('Sending to '+model.split('/').pop()+'...');const extra=getExtraContext();const fullInput=extra?extra+'\n\n'+input:input;try{const data=await callAI(model,PROMPTS[currentTaskType]||PROMPTS.custom,fullInput,cfg.openrouterKey);hideProcessing();if(data.choices&&data.choices[0]){const content=data.choices[0].message.content;let outputId=null;if(sb){const{data:row}=await sb.from('outputs').insert({content,model:data.model||model,status:'draft'}).select('id').single();outputId=row?.id}currentOutputId=outputId;showResult(content,data.model||model,outputId);document.getElementById('task-input').value='';showSuccess('Task complete! Output saved.');loadDashboard()}else{toast('Error: '+(data.error?.message||'Unknown'),'error')}}catch(e){hideProcessing();toast('Error: '+e.message,'error')}btn.innerHTML='&#9654; Run AI task';btn.disabled=false}
+function esc(s){return(s||'').replace(/`/g,"'").replace(/\$/g,'').replace(/\\/g,'')}
+function showResult(content,model,outputId){const c=document.getElementById('submit-result');c.style.display='block';c.innerHTML=`<div class="card" style="margin:0"><div class="card-header"><div class="card-title">AI response <span class="output-model">${model}</span></div><div style="display:flex;gap:6px">${outputId?`<button class="btn btn-sm btn-success" onclick="approveById('${outputId}')">Approve</button><button class="btn btn-sm btn-danger" onclick="rejectById('${outputId}')">Reject</button>`:''}<button class="btn btn-sm" onclick="openModal(\`${esc(content)}\`,'Full response','${outputId||''}')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.card').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div><div class="card-body"><div class="output-content md-rendered expanded">${renderMarkdown(content)}</div></div></div>`}
+async function submitCompare(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set key in Settings','error');return}const models=[{id:'openai/gpt-4o',name:'ChatGPT',role:'Planner',css:'model-gpt'},{id:'anthropic/claude-sonnet-4',name:'Claude',role:'Writer',css:'model-claude'},{id:'google/gemini-2.0-flash-exp:free',name:'Gemini',role:'Checker',css:'model-gemini'}];const btn=document.getElementById('compare-btn');btn.innerHTML='<span class="spinner"></span> Asking 3...';btn.disabled=true;showProcessing('Sending to ChatGPT, Claude, and Gemini...');const sys=PROMPTS[currentTaskType]||PROMPTS.custom;const extra=getExtraContext();const fullInput=extra?extra+'\n\n'+input:input;const results=await Promise.allSettled(models.map(m=>callAI(m.id,sys,fullInput,cfg.openrouterKey)));hideProcessing();let html='<div class="card" style="margin:0"><div class="card-header"><div class="card-title">3-model comparison</div></div><div class="card-body">';results.forEach((r,i)=>{const m=models[i];if(r.status==='fulfilled'&&r.value.choices){const v=r.value;const content=v.choices[0].message.content;html+=`<div class="output-item ${m.css}"><div class="output-meta"><span class="output-model">${m.name}</span><span style="font-size:11px;color:var(--text-muted)">${m.role}</span><span style="font-size:11px;color:var(--text-muted);margin-left:auto">$${(v.usage?.cost||0).toFixed(4)}</span></div><div class="output-content md-rendered collapsed">${renderMarkdown(content)}</div><button class="expand-btn" onclick="toggleExpand(this)">Show full</button><div class="output-actions"><button class="btn btn-sm btn-success" onclick="pickWinner(this)">Use this</button><button class="btn btn-sm" onclick="openModal(\`${esc(content)}\`,'${m.name}')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div>`}else{html+=`<div class="output-item ${m.css}"><div class="output-meta"><span class="output-model">${m.name}</span><span style="color:var(--danger);font-size:12px">${r.value?.error?.message||'Failed'}</span></div><div style="font-size:12px;color:var(--text-muted);padding:8px 0">Needs OpenRouter credit — <a href="https://openrouter.ai/settings/credits" target="_blank" style="color:var(--accent)">add $5 here</a></div></div>`}});html+='</div></div>';document.getElementById('submit-result').innerHTML=html;document.getElementById('submit-result').style.display='block';btn.innerHTML='&#9878; Compare 3 models';btn.disabled=false;document.getElementById('task-input').value='';showSuccess('Comparison complete! Pick the winner below.')}
+async function submitDebate(){const input=document.getElementById('task-input').value.trim();if(!input){toast('Enter text','error');return}const cfg=getConfig();if(!cfg.openrouterKey){toast('Set key in Settings','error');return}const models=[{id:'openai/gpt-4o',name:'ChatGPT',css:'model-gpt'},{id:'anthropic/claude-sonnet-4',name:'Claude',css:'model-claude'},{id:'google/gemini-2.0-flash-exp:free',name:'Gemini',css:'model-gemini'}];const btn=document.getElementById('debate-btn');btn.innerHTML='<span class="spinner"></span> Round 1...';btn.disabled=true;showProcessing('Round 1: All 3 models answering...');const extra=getExtraContext();const fullInput=extra?extra+'\n\n'+input:input;try{const r1=await Promise.allSettled(models.map(m=>callAI(m.id,'You are a strategic advisor. Give your best recommendation with clear reasoning. Use markdown formatting.',fullInput,cfg.openrouterKey)));const opinions=r1.filter(r=>r.status==='fulfilled'&&r.value.choices).map((r,i)=>({model:models[i].name,css:models[i].css,content:r.value.choices[0].message.content}));if(opinions.length<2){hideProcessing();toast('Need 2+ models. Add credit.','error');btn.innerHTML='&#9733; AI debate';btn.disabled=false;return}showProcessing('Round 2: Synthesizing all perspectives...');const di=opinions.map(o=>`--- ${o.model} ---\n${o.content}`).join('\n\n');const sd=await callAI(opinions.length===3?'openai/gpt-4o':'openrouter/free','Synthesize AI perspectives into a well-formatted report:\n## Consensus\nWhat all agree on.\n## Key disagreements\nWhere they differ.\n## Strengths of each\n## Final recommendation\nCombined best answer.\n## Risk factors',`Question: "${input}"\n\n${di}`,cfg.openrouterKey);hideProcessing();const syn=sd.choices?.[0]?.message?.content||'Could not synthesize';let html='<div class="card" style="margin:0"><div class="card-header"><div class="card-title">AI debate — 3 perspectives synthesized</div></div><div class="card-body">';opinions.forEach(o=>{html+=`<div class="output-item ${o.css}"><div class="output-meta"><span class="output-model">${o.model}</span></div><div class="output-content md-rendered collapsed">${renderMarkdown(o.content)}</div><button class="expand-btn" onclick="toggleExpand(this)">Show full</button></div>`});html+=`<div class="output-item model-synthesis"><div class="output-meta"><span class="output-model" style="background:var(--accent);color:#fff">Final synthesis</span></div><div class="output-content md-rendered expanded">${renderMarkdown(syn)}</div><div class="output-actions"><button class="btn btn-sm btn-success" onclick="pickWinner(this)">Approve</button><button class="btn btn-sm" onclick="openModal(\`${esc(syn)}\`,'Synthesis')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div>`;html+='</div></div>';document.getElementById('submit-result').innerHTML=html;document.getElementById('submit-result').style.display='block';document.getElementById('task-input').value='';showSuccess('Debate complete! Review synthesis below.')}catch(e){hideProcessing();toast('Error: '+e.message,'error')}btn.innerHTML='&#9733; AI debate';btn.disabled=false}
+function toggleExpand(btn){const c=btn.previousElementSibling;c.classList.toggle('collapsed');c.classList.toggle('expanded');btn.textContent=c.classList.contains('collapsed')?'Show full':'Collapse'}
 async function approveById(id){if(!sb||!id)return;await sb.from('outputs').update({status:'approved'}).eq('id',id);toast('Approved!','success');loadDashboard();loadOutputs()}
 async function rejectById(id){if(!sb||!id)return;await sb.from('outputs').update({status:'rejected'}).eq('id',id);toast('Rejected','info');loadDashboard();loadOutputs()}
-
-async function pickWinner(btn){const content=btn.closest('.output-item').querySelector('.output-content').innerText;if(sb){const{data:row}=await sb.from('outputs').insert({content,model:'selected-winner',status:'approved'}).select('id').single();toast('Saved!','success');loadDashboard()}else{navigator.clipboard.writeText(content);toast('Copied!','success')}}
-
-// ===== OUTPUTS =====
-async function loadOutputs(filter='all'){if(!sb)return;try{let q=sb.from('outputs').select('*').order('created_at',{ascending:false});if(filter!=='all')q=q.eq('status',filter);const{data}=await q;const c=document.getElementById('outputs-list');if(!data||data.length===0){c.innerHTML='<div class="empty-state"><p>No outputs</p></div>';return}c.innerHTML=data.map(o=>renderOutputItem(o,true)).join('')}catch(e){console.error(e)}}
+async function pickWinner(btn){const content=btn.closest('.output-item').querySelector('.output-content').innerText;if(sb){await sb.from('outputs').insert({content,model:'selected-winner',status:'approved'}).select('id').single();toast('Saved!','success');loadDashboard()}else{navigator.clipboard.writeText(content);toast('Copied!','success')}}
+async function loadOutputs(filter='all'){if(!sb)return;try{let q=sb.from('outputs').select('*').order('created_at',{ascending:false});if(filter!=='all')q=q.eq('status',filter);const{data}=await q;const c=document.getElementById('outputs-list');document.getElementById('outputs-subtitle').textContent=`${data?.length||0} outputs${filter!=='all'?' ('+filter+')':''}`;if(!data||data.length===0){c.innerHTML='<div class="empty-state"><p>No outputs found</p></div>';return}c.innerHTML=data.map(o=>renderOutputItem(o,true)).join('')}catch(e){console.error(e)}}
 function filterOutputs(v){loadOutputs(v)}
-function renderOutputItem(o,full=false){const d=new Date(o.created_at).toLocaleString(),sc=o.status==='approved'?'status-approved':o.status==='rejected'?'status-rejected':'status-draft';const raw=o.content||'';const preview=full?raw:raw.substring(0,300);const isLong=raw.length>300;return`<div class="output-item"><div class="output-meta"><span class="output-model">${o.model||'unknown'}</span><span class="output-status ${sc}">${o.status||'draft'}</span><span class="output-time">${d}</span></div><div class="output-content md-rendered ${full?'collapsed':'collapsed'}">${renderMarkdown(preview)}${!full&&isLong?'...':''}</div>${isLong?`<button class="expand-btn" onclick="toggleExpand(this)">Show full response</button>`:''}<div class="output-actions"><button class="btn btn-sm btn-success" onclick="approveById('${o.id}')">Approve</button><button class="btn btn-sm btn-danger" onclick="rejectById('${o.id}')">Reject</button><button class="btn btn-sm" onclick="openModal(\`${raw.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`,'Output','${o.id}')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button></div></div>`}
-async function updateStatus(id,s){if(!sb)return;await sb.from('outputs').update({status:s}).eq('id',id);toast(s==='approved'?'Approved!':'Rejected','success');loadOutputs();loadDashboard()}
-
-// ===== PROJECTS =====
+function renderOutputItem(o,full=false){const d=new Date(o.created_at).toLocaleString();const sc=o.status==='approved'?'status-approved':o.status==='rejected'?'status-rejected':'status-draft';const raw=o.content||'';return`<div class="output-item"><div class="output-meta"><span class="output-model">${o.model||'unknown'}</span><span class="output-status ${sc}">${o.status||'draft'}</span><span class="output-time">${d}</span></div><div class="output-content md-rendered collapsed">${renderMarkdown(raw)}</div><button class="expand-btn" onclick="toggleExpand(this)">Show full</button><div class="output-actions"><button class="btn btn-sm btn-success" onclick="approveById('${o.id}')">Approve</button><button class="btn btn-sm btn-danger" onclick="rejectById('${o.id}')">Reject</button><button class="btn btn-sm" onclick="openModal(\`${esc(raw)}\`,'Output','${o.id}')">Full view</button><button class="btn btn-sm" onclick="navigator.clipboard.writeText(this.closest('.output-item').querySelector('.output-content').innerText);toast('Copied!','success')">Copy</button><button class="btn btn-sm" onclick="downloadSingle(\`${esc(raw)}\`)">Download</button></div></div>`}
+function downloadSingle(text){const blob=new Blob([text],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='output-'+Date.now()+'.md';a.click();toast('Downloaded!','success')}
 async function loadProjects(){if(!sb)return;try{const{data}=await sb.from('projects').select('*').order('created_at',{ascending:false});const c=document.getElementById('projects-list'),sel=document.getElementById('project-select');if(!data||data.length===0){c.innerHTML='<div class="empty-state"><p>No projects yet</p></div>';return}sel.innerHTML='<option value="">No project</option>'+data.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');c.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>Status</th><th>Priority</th><th>Created</th></tr></thead><tbody>${data.map(p=>`<tr><td style="color:var(--text-primary);font-weight:500">${p.name}</td><td><span class="status-dot ${p.status==='active'?'dot-active':'dot-done'}"></span>${p.status}</td><td>${p.priority||'medium'}</td><td style="color:var(--text-muted)">${new Date(p.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table></div>`}catch(e){console.error(e)}}
 function showNewProject(){document.getElementById('new-project-form').style.display='block'}
 async function createProject(){if(!sb){toast('Connect Supabase','error');return}const n=document.getElementById('project-name').value.trim();if(!n){toast('Enter name','error');return}await sb.from('projects').insert({name:n,description:document.getElementById('project-desc').value.trim(),status:'active',priority:'medium'});document.getElementById('new-project-form').style.display='none';document.getElementById('project-name').value='';document.getElementById('project-desc').value='';toast('Created!','success');loadProjects()}
-
-// ===== SETTINGS =====
-function loadSettings(){const c=getConfig();document.getElementById('set-supabase-url').value=c.supabaseUrl;document.getElementById('set-supabase-key').value=c.supabaseKey;document.getElementById('set-webhook-url').value=c.webhookUrl;document.getElementById('set-openrouter-key').value=c.openrouterKey;document.getElementById('info-n8n').textContent=c.webhookUrl?'Connected':'Not set';document.getElementById('info-db').textContent=c.supabaseUrl?'Connected':'Not set'}
+async function checkModelStatus(){const cfg=getConfig();if(!cfg.openrouterKey)return;const models=[{id:'openai/gpt-4o',el:'gpt-status'},{id:'anthropic/claude-sonnet-4',el:'claude-status'},{id:'google/gemini-2.0-flash-exp:free',el:'gemini-status'}];models.forEach(async m=>{try{const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+cfg.openrouterKey,'Content-Type':'application/json'},body:JSON.stringify({model:m.id,messages:[{role:'user',content:'Hi'}],max_tokens:5})});const d=await r.json();document.getElementById(m.el).className='model-card-status '+(d.choices?'health-ok':'health-warn')}catch{document.getElementById(m.el).className='model-card-status health-err'}})}
+async function runHealthCheck(){const cfg=getConfig();const checks=[{id:'h-supabase',test:async()=>{if(!sb)throw new Error('Not configured');await sb.from('outputs').select('id').limit(1);return'Connected to Supabase'}},{id:'h-openrouter',test:async()=>{if(!cfg.openrouterKey)throw new Error('No API key');const r=await fetch('https://openrouter.ai/api/v1/models',{headers:{'Authorization':'Bearer '+cfg.openrouterKey}});if(!r.ok)throw new Error('Invalid key');return'API key valid'}},{id:'h-n8n',test:async()=>{if(!cfg.webhookUrl)throw new Error('No webhook URL configured');return'Webhook URL configured'}},{id:'h-gpt',test:async()=>{if(!cfg.openrouterKey)throw new Error('No key');const r=await callAI('openai/gpt-4o','Reply OK','test',cfg.openrouterKey);if(r.error)throw new Error(r.error.message);return'Working ($)'}},{id:'h-claude',test:async()=>{if(!cfg.openrouterKey)throw new Error('No key');const r=await callAI('anthropic/claude-sonnet-4','Reply OK','test',cfg.openrouterKey);if(r.error)throw new Error(r.error.message);return'Working ($)'}},{id:'h-gemini',test:async()=>{if(!cfg.openrouterKey)throw new Error('No key');const r=await callAI('google/gemini-2.0-flash-exp:free','Reply OK','test',cfg.openrouterKey);if(r.error)throw new Error(r.error.message);return'Working (free)'}}];checks.forEach(async c=>{const dot=document.getElementById(c.id);const detail=document.getElementById(c.id+'-detail');dot.className='health-dot health-loading';detail.textContent='Checking...';try{const msg=await c.test();dot.className='health-dot health-ok';detail.textContent=msg}catch(e){dot.className='health-dot health-err';detail.textContent=e.message}})}
+function loadSettings(){const c=getConfig();document.getElementById('set-supabase-url').value=c.supabaseUrl;document.getElementById('set-supabase-key').value=c.supabaseKey;document.getElementById('set-webhook-url').value=c.webhookUrl;document.getElementById('set-openrouter-key').value=c.openrouterKey}
 function saveSettings(){localStorage.setItem('ai_ops_supabase_url',document.getElementById('set-supabase-url').value.trim());localStorage.setItem('ai_ops_supabase_key',document.getElementById('set-supabase-key').value.trim());localStorage.setItem('ai_ops_webhook_url',document.getElementById('set-webhook-url').value.trim());localStorage.setItem('ai_ops_openrouter_key',document.getElementById('set-openrouter-key').value.trim());initSupabase();checkConnection();document.getElementById('settings-saved').style.display='inline';setTimeout(()=>document.getElementById('settings-saved').style.display='none',3000);toast('Saved!','success');document.getElementById('configBanner').style.display='none'}
 function showConfigBanner(){const c=getConfig();if(!c.supabaseUrl||!c.supabaseKey){document.getElementById('configBanner').style.display='block';document.getElementById('configBanner').innerHTML='Welcome! Go to <strong style="cursor:pointer;text-decoration:underline" onclick="showPage(\'settings\')">Settings</strong> to connect your database and API key.'}}
 async function checkConnection(){const d=document.getElementById('connDot'),t=document.getElementById('connText');if(sb){try{await sb.from('outputs').select('id').limit(1);d.className='conn-dot conn-ok';t.textContent='Connected'}catch{d.className='conn-dot conn-err';t.textContent='DB error'}}else{d.className='conn-dot conn-err';t.textContent='Not set'}}
-
-// ===== INIT =====
-window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('ai_ops_theme')||'dark';document.documentElement.setAttribute('data-theme',t);const tr=document.getElementById('themeToggle'),l=document.getElementById('themeLabel');if(t==='light'){tr.classList.remove('on');l.textContent='Light mode'}const ok=initSupabase();if(ok){loadDashboard();checkConnection();loadProjects()}else{showConfigBanner();checkConnection();['stat-total','stat-draft','stat-approved','stat-projects'].forEach(id=>document.getElementById(id).textContent='0');document.getElementById('recent-outputs').innerHTML='<div class="empty-state"><p>Connect in Settings to start</p></div>'}})
+window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('ai_ops_theme')||'dark';document.documentElement.setAttribute('data-theme',t);const tr=document.getElementById('themeToggle'),l=document.getElementById('themeLabel');if(t==='light'){tr.classList.remove('on');l.textContent='Light mode'}const ok=initSupabase();if(ok){loadDashboard();checkConnection();loadProjects()}else{showConfigBanner();checkConnection();['stat-total','stat-draft','stat-approved','stat-projects'].forEach(id=>document.getElementById(id).textContent='0');document.getElementById('recent-outputs').innerHTML='<div class="empty-state"><p>Connect in Settings to start</p></div>'}showExtraFields('transcript')})
 </script>
 </body>
 </html>
